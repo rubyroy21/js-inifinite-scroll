@@ -1,56 +1,28 @@
-const container = document.getElementById('container');
-const loading = document.querySelector('.loading');
+const container = document.getElementById("container");
 
-getPost();
-getPost();
-getPost();
+let count = 1;
 
-window.addEventListener('scroll', () => {
-	const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
-	
-	console.log( { scrollTop, scrollHeight, clientHeight });
-	
-	if(clientHeight + scrollTop >= scrollHeight - 5) {
-		// show the loading animation
-		showLoading();
-	}
+infiniteScroll();
+
+function infiniteScroll() {
+  for (let i = 0; i < 25; i++) {
+    setTimeout(() => {
+		const lines = document.createElement("p");
+    	lines.innerText = `Masai Student ${count++}`;
+    	container.appendChild(lines);
+	}, 1500)
+  }
+}
+
+container.addEventListener("scroll", function () {
+  if (container.scrollTop + container.clientHeight >= container.scrollHeight) {
+    console.log(
+      "scrollTop + clientHeight:",
+      container.scrollTop + container.clientHeight,
+      "scrollHeight:",
+      container.scrollHeight
+    );
+
+    infiniteScroll();
+  }
 });
-
-function showLoading() {
-	loading.classList.add('show');
-	
-	// load more data
-	setTimeout(getPost, 1000)
-}
-
-async function getPost() {
-	const postResponse = await fetch(`https://jsonplaceholder.typicode.com/posts/${getRandomNr()}`);
-	const postData = await postResponse.json();
-	
-	const userResponse = await fetch('https://randomuser.me/api');
-	const userData = await userResponse.json();
-	
-	const data = { post: postData, user: userData.results[0] };
-	
-	addDataToDOM(data);
-}
-
-function getRandomNr() {
-	return Math.floor(Math.random() * 100) + 1;
-}
-
-function addDataToDOM(data) {
-	const postElement = document.createElement('div');
-	postElement.classList.add('blog-post');
-	postElement.innerHTML = `
-		<h2 class="title">${data.post.title}</h2>
-		<p class="text">${data.post.body}</p>
-		<div class="user-info">
-			<img src="${data.user.picture.large}" alt="${data.user.name.first}" />
-			<span>${data.user.name.first} ${data.user.name.last}</span>
-		</div>
-	`;
-	container.appendChild(postElement);
-	
-	loading.classList.remove('show');
-}
